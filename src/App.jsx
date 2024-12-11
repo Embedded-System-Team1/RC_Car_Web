@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import styles from './App.module.css';
+import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
+  const [lastMessage, setLastMessage] = useState(''); // 마지막 전송 메시지 상태
+  const intervalRef = useRef(null); // Interval 참조
 
   useEffect(() => {
     // WebSocket 연결
@@ -25,7 +29,10 @@ function App() {
 
   const sendMessage = (message) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(message);
+      if (message !== 'STOP' || lastMessage !== 'STOP') {
+        socketRef.current.send(message);
+        setLastMessage(message); // 마지막 메시지 업데이트
+      }
     } else {
       console.log('WebSocket 연결이 닫혀 있습니다.');
     }
@@ -69,6 +76,10 @@ function App() {
         sendMessage('FORWARD_RIGHT');
       } else if (activeKeys.ArrowUp) {
         sendMessage('FORWARD');
+      } else if (activeKeys.ArrowDown && activeKeys.ArrowLeft) {
+        sendMessage('BACKWARD_LEFT');
+      } else if (activeKeys.ArrowDown && activeKeys.ArrowRight) {
+        sendMessage('BACKWARD_RIGHT');
       } else if (activeKeys.ArrowDown) {
         sendMessage('BACKWARD');
       } else if (activeKeys.ArrowLeft) {
@@ -80,8 +91,22 @@ function App() {
       }
     };
 
-    combinedActions();
-  }, [activeKeys, handleKeyDown]);
+    // 기존 interval 정리
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // 새로운 interval 설정
+    intervalRef.current = setInterval(() => {
+      combinedActions();
+    }, 100);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [activeKeys, lastMessage]); // lastMessage 추가
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -91,57 +116,66 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleKeyDown]);
+  }, []);
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      <h1>RC 카 컨트롤러</h1>
-      <p>방향키를 사용해 RC 카를 조작하세요:</p>
-      <div
-        style={{
-          display: 'inline-grid',
-          gridTemplateColumns: '50px 50px 50px',
-          gridGap: '10px',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <button
-          style={{
-            gridColumn: '2',
-            backgroundColor: activeKeys.ArrowUp ? 'lightgreen' : 'white',
-          }}
-        >
-          ↑
-        </button>
-        <button
-          style={{
-            gridColumn: '1',
-            backgroundColor: activeKeys.ArrowLeft ? 'lightgreen' : 'white',
-          }}
-        >
-          ←
-        </button>
-        <button
-          style={{
-            gridColumn: '3',
-            backgroundColor: activeKeys.ArrowRight ? 'lightgreen' : 'white',
-          }}
-        >
-          →
-        </button>
-        <button
-          style={{
-            gridColumn: '2',
-            backgroundColor: activeKeys.ArrowDown ? 'lightgreen' : 'white',
-          }}
-        >
-          ↓
-        </button>
+    <div className={styles.container}>
+      <div className={styles.card}>
+        <h1 className={styles.title}>RC 카 컨트롤러</h1>
+
+        <p className={styles.description}>방향키를 사용해 RC 카를 조작하세요:</p>
+
+        {/* Up arrow */}
+        <div className={styles.topCenter}>
+          <div className={styles.gridItem}>
+            <div className={`${styles.arrowButton} ${activeKeys.ArrowUp ? styles.active : ''}`}>
+              <ArrowUp
+                className={`${styles.arrowIcon} ${activeKeys.ArrowUp ? styles.activeIcon : ''}`}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Left arrow */}
+        <div className={styles.grid}>
+          <div className={styles.gridItem}>
+            <div className={`${styles.arrowButton} ${activeKeys.ArrowLeft ? styles.active : ''}`}>
+              <ArrowLeft
+                className={`${styles.arrowIcon} ${activeKeys.ArrowLeft ? styles.activeIcon : ''}`}
+              />
+            </div>
+          </div>
+
+          {/* Down arrow */}
+          <div className={styles.gridItem}>
+            <div className={`${styles.arrowButton} ${activeKeys.ArrowDown ? styles.active : ''}`}>
+              <ArrowDown
+                className={`${styles.arrowIcon} ${activeKeys.ArrowDown ? styles.activeIcon : ''}`}
+              />
+            </div>
+          </div>
+
+          {/* Right arrow */}
+          <div className={styles.gridItem}>
+            <div className={`${styles.arrowButton} ${activeKeys.ArrowRight ? styles.active : ''}`}>
+              <ArrowRight
+                className={`${styles.arrowIcon} ${activeKeys.ArrowRight ? styles.activeIcon : ''}`}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.statusText}>
+          현재 활성화된 키:{' '}
+          <span className={styles.activeKey}>
+            {Object.keys(activeKeys).length > 0
+              ? Object.keys(activeKeys)
+                  .map((key) => key.replace('Arrow', ''))
+                  .join(', ')
+              : '없음'}
+          </span>
+        </div>
       </div>
-      <p style={{ marginTop: '20px' }}>
-        현재 활성화된 키: {Object.keys(activeKeys).join(', ') || '없음'}
-      </p>
     </div>
   );
 }
