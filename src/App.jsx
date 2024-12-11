@@ -106,7 +106,7 @@ function App() {
         clearInterval(intervalRef.current);
       }
     };
-  }, [activeKeys, lastMessage]); // lastMessage 추가
+  }, [activeKeys, lastMessage, sendMessage]); // lastMessage 추가
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -116,7 +116,7 @@ function App() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [handleKeyDown, handleKeyUp]);
 
   return (
     <div className={styles.container}>
