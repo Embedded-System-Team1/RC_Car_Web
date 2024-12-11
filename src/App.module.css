@@ -1,0 +1,101 @@
+.container {
+  width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #1a202c, #2d3748);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: rgba(45, 55, 72, 0.5);
+  border: 1px solid #4a5568;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #48bb78;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.description {
+  text-align: center;
+  color: #e2e8f0;
+  margin-bottom: 2rem;
+}
+
+.topCenter {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  margin-left: 0.75rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 200px;
+  margin: 0 auto 2rem;
+}
+
+.gridItem {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.arrowButton {
+  padding: 1rem;
+  border-radius: 8px;
+  background: #2d3748;
+  transition: all 0.2s ease-in-out;
+}
+
+.arrowButton.active {
+  background: #48bb78;
+  box-shadow: 0 0 10px rgba(72, 187, 120, 0.5);
+}
+
+.arrowIcon {
+  width: 2rem;
+  height: 2rem;
+  color: #a0aec0;
+}
+
+.arrowIcon.activeIcon {
+  color: white;
+}
+
+.statusText {
+  text-align: center;
+  color: #a0aec0;
+  font-family: monospace;
+}
+
+.activeKey {
+  color: #48bb78;
+}
