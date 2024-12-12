@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import styles from './App.module.css';
 import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
@@ -27,46 +27,52 @@ function App() {
     };
   }, []);
 
-  const sendMessage = (message) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      if (message !== 'STOP' || lastMessage !== 'STOP') {
-        socketRef.current.send(message);
-        setLastMessage(message); // 마지막 메시지 업데이트
+  const sendMessage = useCallback(
+    (message) => {
+      if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+        if (message !== 'STOP' || lastMessage !== 'STOP') {
+          socketRef.current.send(message);
+          setLastMessage(message); // 마지막 메시지 업데이트
+        }
+      } else {
+        console.log('WebSocket 연결이 닫혀 있습니다.');
       }
-    } else {
-      console.log('WebSocket 연결이 닫혀 있습니다.');
-    }
-  };
+    },
+    [lastMessage]
+  );
 
-  const handleKeyDown = (e) => {
-    if (!e.key.startsWith('Arrow')) {
-      return;
-    }
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (!e.key.startsWith('Arrow')) {
+        return;
+      }
 
-    if (
-      (e.key === 'ArrowLeft' && activeKeys.ArrowRight) ||
-      (e.key === 'ArrowRight' && activeKeys.ArrowLeft) ||
-      (e.key === 'ArrowUp' && activeKeys.ArrowDown) ||
-      (e.key === 'ArrowDown' && activeKeys.ArrowUp)
-    ) {
-      return;
-    }
+      if (
+        (e.key === 'ArrowLeft' && activeKeys.ArrowRight) ||
+        (e.key === 'ArrowRight' && activeKeys.ArrowLeft) ||
+        (e.key === 'ArrowUp' && activeKeys.ArrowDown) ||
+        (e.key === 'ArrowDown' && activeKeys.ArrowUp)
+      ) {
+        return;
+      }
 
-    if (!activeKeys[e.key]) {
-      setActiveKeys((prevKeys) => ({
-        ...prevKeys,
-        [e.key]: true,
-      }));
-    }
-  };
+      if (!activeKeys[e.key]) {
+        setActiveKeys((prevKeys) => ({
+          ...prevKeys,
+          [e.key]: true,
+        }));
+      }
+    },
+    [activeKeys]
+  );
 
-  const handleKeyUp = (e) => {
+  const handleKeyUp = useCallback((e) => {
     setActiveKeys((prevKeys) => {
       const newKeys = { ...prevKeys };
       delete newKeys[e.key];
       return newKeys;
     });
-  };
+  }, []);
 
   useEffect(() => {
     const combinedActions = () => {
