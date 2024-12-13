@@ -114,7 +114,7 @@ function App() {
         sendMessage('LEFT');
       } else if (activeKeys.ArrowRight) {
         sendMessage('RIGHT');
-      } else if (lastMessage !== 'HORN') {
+      } else if (lastMessage !== 'HORN' && lastMessage !== 'TOGGLE_CEILING') {
         sendMessage('STOP');
       }
     };
