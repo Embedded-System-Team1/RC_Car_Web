@@ -7,6 +7,7 @@ function App() {
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
   const [lastMessage, setLastMessage] = useState(''); // 마지막 전송 메시지 상태
   const [spaceCoolDown, setSpaceCoolDown] = useState(false); // 스페이스바 쿨다운 상태
+  const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
   const intervalRef = useRef(null); // Interval 참조
 
   useEffect(() => {
@@ -52,6 +53,14 @@ function App() {
         return;
       }
 
+      if (e.key === 'x' && !xCoolDown) {
+        // x키 메시지 전송 및 쿨다운 설정
+        sendMessage('TOGGLE_CEILING');
+        setXCoolDown(true);
+        setTimeout(() => setXCoolDown(false), 500); // 0.5초 쿨다운
+        return;
+      }
+
       if (!e.key.startsWith('Arrow')) {
         return;
       }
@@ -72,7 +81,7 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, spaceCoolDown]
+    [activeKeys, sendMessage, spaceCoolDown, xCoolDown]
   );
 
   const handleKeyUp = useCallback((e) => {
@@ -105,7 +114,7 @@ function App() {
         sendMessage('LEFT');
       } else if (activeKeys.ArrowRight) {
         sendMessage('RIGHT');
-      } else {
+      } else if (lastMessage !== 'HORN') {
         sendMessage('STOP');
       }
     };
@@ -143,8 +152,9 @@ function App() {
         <h1 className={styles.title}>RC 카 컨트롤러</h1>
 
         <p className={styles.description}>
-          방향키를 사용해 RC 카를 조작하고, 스페이스바로 특수 동작을 실행하세요:
+          방향키를 사용해 RC 카를 조작하고, x키와, 스페이스바로 특수 동작을 실행하세요.
         </p>
+        <p className={styles.subDescription}>x키: 천장 오픈 토글, 스페이스바: 경적</p>
 
         {/* Up arrow */}
         <div className={styles.topCenter}>

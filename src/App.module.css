@@ -42,7 +42,14 @@
 .description {
   text-align: center;
   color: #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.subDescription {
+  text-align: center;
+  color: #8f9398;
   margin-bottom: 2rem;
+  font-size: 12px;
 }
 
 .topCenter {
