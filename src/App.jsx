@@ -6,6 +6,7 @@ function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
   const [lastMessage, setLastMessage] = useState(''); // 마지막 전송 메시지 상태
+  const [spaceCoolDown, setSpaceCoolDown] = useState(false); // 스페이스바 쿨다운 상태
   const intervalRef = useRef(null); // Interval 참조
 
   useEffect(() => {
@@ -43,6 +44,14 @@ function App() {
 
   const handleKeyDown = useCallback(
     (e) => {
+      if (e.key === ' ' && !spaceCoolDown) {
+        // 스페이스바 메시지 전송 및 쿨다운 설정
+        sendMessage('HORN');
+        setSpaceCoolDown(true);
+        setTimeout(() => setSpaceCoolDown(false), 500); // 0.5초 쿨다운
+        return;
+      }
+
       if (!e.key.startsWith('Arrow')) {
         return;
       }
@@ -63,10 +72,14 @@ function App() {
         }));
       }
     },
-    [activeKeys]
+    [activeKeys, sendMessage, spaceCoolDown]
   );
 
   const handleKeyUp = useCallback((e) => {
+    if (!e.key.startsWith('Arrow')) {
+      return;
+    }
+
     setActiveKeys((prevKeys) => {
       const newKeys = { ...prevKeys };
       delete newKeys[e.key];
@@ -129,7 +142,9 @@ function App() {
       <div className={styles.card}>
         <h1 className={styles.title}>RC 카 컨트롤러</h1>
 
-        <p className={styles.description}>방향키를 사용해 RC 카를 조작하세요:</p>
+        <p className={styles.description}>
+          방향키를 사용해 RC 카를 조작하고, 스페이스바로 특수 동작을 실행하세요:
+        </p>
 
         {/* Up arrow */}
         <div className={styles.topCenter}>
