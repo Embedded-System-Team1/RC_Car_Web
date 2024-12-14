@@ -75,7 +75,7 @@ function App() {
         return;
       }
 
-      if (e.key === 'x' && !xCoolDown) {
+      if ((e.key === 'x' || e.key === 'X') && !xCoolDown) {
         // x키 메시지 전송 및 쿨다운 설정
         sendMessage('TOGGLE_CEILING');
         setXCoolDown(true);
@@ -89,7 +89,7 @@ function App() {
         return;
       }
 
-      if (e.key === 'r') {
+      if (e.key === 'r' || e.key === 'R') {
         // R 키로 WebSocket 다시 연결
         connectSocket();
         return;
