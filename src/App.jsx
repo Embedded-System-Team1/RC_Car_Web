@@ -12,7 +12,7 @@ function App() {
 
   const connectSocket = useCallback(() => {
     if (!socketConnected) {
-      socketRef.current = new WebSocket('ws://192.168.137.186:9000');
+      socketRef.current = new WebSocket(import.meta.env.VITE_SOCKET_URL);
 
       socketRef.current.onopen = () => {
         console.log('WebSocket 연결 성공');
