@@ -118,7 +118,7 @@ function App() {
   const handleKeyUp = useCallback(
     (e) => {
       if (e.key === ' ') {
-        sendMessage('STOP_HORN');
+        sendMessage('END_HORN');
       }
       if (!e.key.startsWith('Arrow')) {
         return;
