@@ -6,7 +6,6 @@ function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
   const [lastMessage, setLastMessage] = useState('INIT'); // 마지막 전송 메시지 상태
-  const [spaceCoolDown, setSpaceCoolDown] = useState(false); // 스페이스바 쿨다운 상태
   const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
   const [socketConnected, setSocketConnected] = useState(false); // WebSocket 연결 상태
   const intervalRef = useRef(null); // Interval 참조
@@ -67,11 +66,9 @@ function App() {
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (e.key === ' ' && !spaceCoolDown) {
+      if (e.key === ' ') {
         // 스페이스바 메시지 전송 및 쿨다운 설정
         sendMessage('HORN');
-        setSpaceCoolDown(true);
-        setTimeout(() => setSpaceCoolDown(false), 500); // 0.5초 쿨다운
         return;
       }
 
@@ -115,20 +112,26 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, spaceCoolDown, xCoolDown, disconnectSocket, connectSocket]
+    [activeKeys, sendMessage, xCoolDown, disconnectSocket, connectSocket]
   );
 
-  const handleKeyUp = useCallback((e) => {
-    if (!e.key.startsWith('Arrow')) {
-      return;
-    }
+  const handleKeyUp = useCallback(
+    (e) => {
+      if (e.key === ' ') {
+        sendMessage('STOP_HORN');
+      }
+      if (!e.key.startsWith('Arrow')) {
+        return;
+      }
 
-    setActiveKeys((prevKeys) => {
-      const newKeys = { ...prevKeys };
-      delete newKeys[e.key];
-      return newKeys;
-    });
-  }, []);
+      setActiveKeys((prevKeys) => {
+        const newKeys = { ...prevKeys };
+        delete newKeys[e.key];
+        return newKeys;
+      });
+    },
+    [sendMessage]
+  );
 
   useEffect(() => {
     const combinedActions = () => {
