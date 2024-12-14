@@ -149,6 +149,7 @@ function App() {
         sendMessage('BACKWARD');
       } else if (
         lastMessage !== 'HORN' &&
+        lastMessage !== 'END_HORN' &&
         lastMessage !== 'TOGGLE_CEILING' &&
         lastMessage !== 'INIT'
       ) {
