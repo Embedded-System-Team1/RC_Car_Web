@@ -5,29 +5,51 @@ import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
-  const [lastMessage, setLastMessage] = useState(''); // 마지막 전송 메시지 상태
+  const [lastMessage, setLastMessage] = useState('INIT'); // 마지막 전송 메시지 상태
   const [spaceCoolDown, setSpaceCoolDown] = useState(false); // 스페이스바 쿨다운 상태
   const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
+  const [socketConnected, setSocketConnected] = useState(false); // WebSocket 연결 상태
   const intervalRef = useRef(null); // Interval 참조
 
+  const connectSocket = useCallback(() => {
+    if (!socketConnected) {
+      socketRef.current = new WebSocket('ws://192.168.137.186:9000');
+
+      socketRef.current.onopen = () => {
+        console.log('WebSocket 연결 성공');
+        setSocketConnected(true);
+      };
+
+      socketRef.current.onclose = () => {
+        console.log('WebSocket 연결 종료');
+        setSocketConnected(false);
+      };
+
+      socketRef.current.onerror = (error) => {
+        console.error('WebSocket 에러:', error);
+        setSocketConnected(false);
+      };
+    }
+  }, []);
+
+  const disconnectSocket = useCallback(() => {
+    if (socketRef.current) {
+      socketRef.current.close();
+      setSocketConnected(false);
+      console.log('WebSocket 수동으로 끊음');
+    }
+  }, []);
+
   useEffect(() => {
-    // WebSocket 연결
-    socketRef.current = new WebSocket('ws://192.168.137.186:9000');
-
-    socketRef.current.onopen = () => {
-      console.log('WebSocket 연결 성공');
-    };
-
-    socketRef.current.onclose = () => {
-      console.log('WebSocket 연결 종료');
-    };
+    // 초기 WebSocket 연결
+    connectSocket();
 
     return () => {
       if (socketRef.current) {
         socketRef.current.close();
       }
     };
-  }, []);
+  }, [connectSocket]);
 
   const sendMessage = useCallback(
     (message) => {
@@ -61,6 +83,18 @@ function App() {
         return;
       }
 
+      if (e.key === 'Escape') {
+        // ESC 키로 WebSocket 끊기
+        disconnectSocket();
+        return;
+      }
+
+      if (e.key === 'r') {
+        // R 키로 WebSocket 다시 연결
+        connectSocket();
+        return;
+      }
+
       if (!e.key.startsWith('Arrow')) {
         return;
       }
@@ -81,7 +115,7 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, spaceCoolDown, xCoolDown]
+    [activeKeys, sendMessage, spaceCoolDown, xCoolDown, disconnectSocket, connectSocket]
   );
 
   const handleKeyUp = useCallback((e) => {
@@ -114,7 +148,11 @@ function App() {
         sendMessage('LEFT');
       } else if (activeKeys.ArrowRight) {
         sendMessage('RIGHT');
-      } else if (lastMessage !== 'HORN' && lastMessage !== 'TOGGLE_CEILING') {
+      } else if (
+        lastMessage !== 'HORN' &&
+        lastMessage !== 'TOGGLE_CEILING' &&
+        lastMessage !== 'INIT'
+      ) {
         sendMessage('STOP');
       }
     };
@@ -152,9 +190,11 @@ function App() {
         <h1 className={styles.title}>RC 카 컨트롤러</h1>
 
         <p className={styles.description}>
-          방향키를 사용해 RC 카를 조작하고, x키와, 스페이스바로 특수 동작을 실행하세요.
+          방향키를 사용해 RC 카를 조작하고, X키, 스페이스바로 특수 동작을 실행하세요.
         </p>
-        <p className={styles.subDescription}>x키: 천장 오픈 토글, 스페이스바: 경적</p>
+        <p className={styles.subDescription}>
+          X키: 천장 오픈 토글, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓 연결
+        </p>
 
         {/* Up arrow */}
         <div className={styles.topCenter}>
@@ -195,17 +235,23 @@ function App() {
             </div>
           </div>
         </div>
-
-        <div className={styles.statusText}>
-          현재 활성화된 키:{' '}
-          <span className={styles.activeKey}>
-            {Object.keys(activeKeys).length > 0
-              ? Object.keys(activeKeys)
-                  .map((key) => key.replace('Arrow', ''))
-                  .join(', ')
-              : '없음'}
-          </span>
-        </div>
+        {socketConnected ? (
+          <div className={styles.statusText}>
+            현재 활성화된 키:{' '}
+            <span className={styles.activeKey}>
+              {Object.keys(activeKeys).length > 0
+                ? Object.keys(activeKeys)
+                    .map((key) => key.replace('Arrow', ''))
+                    .join(', ')
+                : '없음'}
+            </span>
+          </div>
+        ) : (
+          <div className={styles.statusText}>
+            WebSocket 상태:{' '}
+            <span className={styles.activeKey}>{socketConnected ? '연결됨' : '연결되지 않음'}</span>
+          </div>
+        )}
       </div>
     </div>
   );
