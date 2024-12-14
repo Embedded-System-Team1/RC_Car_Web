@@ -7,6 +7,8 @@ function App() {
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
   const [lastMessage, setLastMessage] = useState('INIT'); // 마지막 전송 메시지 상태
   const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
+  const [escCoolDown, setEscCoolDown] = useState(false); // ESC 키 쿨다운 상태
+  const [rCoolDown, setRCoolDown] = useState(false); // R 키 쿨다운 상태
   const [socketConnected, setSocketConnected] = useState(false); // WebSocket 연결 상태
   const intervalRef = useRef(null); // Interval 참조
 
@@ -76,19 +78,23 @@ function App() {
         // x키 메시지 전송 및 쿨다운 설정
         sendMessage('TOGGLE_CEILING');
         setXCoolDown(true);
-        setTimeout(() => setXCoolDown(false), 500); // 0.5초 쿨다운
+        setTimeout(() => setXCoolDown(false), 2000); // 2초 쿨다운
         return;
       }
 
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && !escCoolDown) {
         // ESC 키로 WebSocket 끊기
         disconnectSocket();
+        setEscCoolDown(true);
+        setTimeout(() => setEscCoolDown(false), 500); // 0.5초 쿨다운
         return;
       }
 
-      if (e.key === 'r' || e.key === 'R') {
+      if ((e.key === 'r' || e.key === 'R') && !rCoolDown) {
         // R 키로 WebSocket 다시 연결
         connectSocket();
+        setRCoolDown(true);
+        setTimeout(() => setRCoolDown(false), 500); // 0.5초 쿨다운
         return;
       }
 
@@ -112,7 +118,7 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, xCoolDown, disconnectSocket, connectSocket]
+    [activeKeys, sendMessage, xCoolDown, rCoolDown, escCoolDown, disconnectSocket, connectSocket]
   );
 
   const handleKeyUp = useCallback(
