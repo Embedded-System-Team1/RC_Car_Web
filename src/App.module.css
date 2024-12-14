@@ -106,3 +106,9 @@
 .activeKey {
   color: #48bb78;
 }
+
+.errorKey {
+  text-align: center;
+  color: #ff4b4b;
+  font-family: monospace;
+}

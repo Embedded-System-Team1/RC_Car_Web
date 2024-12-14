@@ -249,7 +249,9 @@ function App() {
         ) : (
           <div className={styles.statusText}>
             WebSocket 상태:{' '}
-            <span className={styles.activeKey}>{socketConnected ? '연결됨' : '연결되지 않음'}</span>
+            <span className={socketConnected ? styles.activeKey : styles.errorKey}>
+              {socketConnected ? '연결됨' : '연결되지 않음'}
+            </span>
           </div>
         )}
       </div>
