@@ -144,10 +144,6 @@ function App() {
         sendMessage('BACKWARD_RIGHT');
       } else if (activeKeys.ArrowDown) {
         sendMessage('BACKWARD');
-      } else if (activeKeys.ArrowLeft) {
-        sendMessage('LEFT');
-      } else if (activeKeys.ArrowRight) {
-        sendMessage('RIGHT');
       } else if (
         lastMessage !== 'HORN' &&
         lastMessage !== 'TOGGLE_CEILING' &&
@@ -193,7 +189,7 @@ function App() {
           방향키를 사용해 RC 카를 조작하고, X키, 스페이스바로 특수 동작을 실행하세요.
         </p>
         <p className={styles.subDescription}>
-          X키: 천장 오픈 토글, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓 연결
+          X: 천장 오픈 토글, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓 연결
         </p>
 
         {/* Up arrow */}
