@@ -6,6 +6,7 @@ function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
   const [autoLight, setAutoLight] = useState(true); // 자동 조명 상태
+  const [openState, setOpenState] = useState(false); // 천장 상태
   const [lastMessage, setLastMessage] = useState('INIT'); // 마지막 전송 메시지 상태
   const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
   const [socketCoolDown, setSocketCoolDown] = useState(false); // 소켓 토글글 쿨다운 상태
@@ -76,7 +77,8 @@ function App() {
 
       if ((e.key === 'x' || e.key === 'X') && !xCoolDown) {
         // x키 메시지 전송 및 쿨다운 설정
-        sendMessage('TOGGLE_CEILING');
+        sendMessage(openState ? 'OPEN_CEILING' : 'CLOSE_CEILING');
+        setOpenState((prev) => !prev);
         setXCoolDown(true);
         setTimeout(() => setXCoolDown(false), 2000); // 2초 쿨다운
         return;
@@ -125,7 +127,16 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, xCoolDown, autoLight, socketCoolDown, disconnectSocket, connectSocket]
+    [
+      activeKeys,
+      sendMessage,
+      xCoolDown,
+      openState,
+      autoLight,
+      socketCoolDown,
+      disconnectSocket,
+      connectSocket,
+    ]
   );
 
   const handleKeyUp = useCallback(
@@ -163,7 +174,10 @@ function App() {
       } else if (
         lastMessage !== 'HORN' &&
         lastMessage !== 'END_HORN' &&
-        lastMessage !== 'TOGGLE_CEILING' &&
+        lastMessage !== 'OPEN_CEILING' &&
+        lastMessage !== 'CLOSE_CEILING' &&
+        lastMessage !== 'ON_AUTO_LIGHT' &&
+        lastMessage !== 'OFF_AUTO_LIGHT' &&
         lastMessage !== 'INIT'
       ) {
         sendMessage('STOP');
