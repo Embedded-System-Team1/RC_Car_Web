@@ -5,6 +5,7 @@ import { ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 function App() {
   const socketRef = useRef(null);
   const [activeKeys, setActiveKeys] = useState({}); // 활성화된 키 상태
+  const [autoLight, setAutoLight] = useState(true); // 자동 조명 상태
   const [lastMessage, setLastMessage] = useState('INIT'); // 마지막 전송 메시지 상태
   const [xCoolDown, setXCoolDown] = useState(false); // x키 쿨다운 상태
   const [socketCoolDown, setSocketCoolDown] = useState(false); // 소켓 토글글 쿨다운 상태
@@ -81,6 +82,13 @@ function App() {
         return;
       }
 
+      if (e.key === 'd' || e.key === 'D') {
+        // D키로 자동 조명 토글
+        sendMessage(autoLight ? 'OFF_AUTO_LIGHT' : 'ON_AUTO_LIGHT');
+        setAutoLight((prev) => !prev);
+        return;
+      }
+
       if (e.key === 'Escape' && !socketCoolDown) {
         // ESC 키로 WebSocket 끊기
         disconnectSocket();
@@ -117,7 +125,7 @@ function App() {
         }));
       }
     },
-    [activeKeys, sendMessage, xCoolDown, socketCoolDown, disconnectSocket, connectSocket]
+    [activeKeys, sendMessage, xCoolDown, autoLight, socketCoolDown, disconnectSocket, connectSocket]
   );
 
   const handleKeyUp = useCallback(
@@ -198,7 +206,8 @@ function App() {
           방향키를 사용해 RC 카를 조작하고, X키, 스페이스바로 특수 동작을 실행하세요.
         </p>
         <p className={styles.subDescription}>
-          X: 천장 오픈 토글, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓 연결
+          X: 천장 오픈 토글, d: 오토 라이트 on/off, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓
+          연결
         </p>
 
         {/* Up arrow */}
@@ -241,16 +250,24 @@ function App() {
           </div>
         </div>
         {socketConnected ? (
-          <div className={styles.statusText}>
-            현재 활성화된 키:{' '}
-            <span className={styles.activeKey}>
-              {Object.keys(activeKeys).length > 0
-                ? Object.keys(activeKeys)
-                    .map((key) => key.replace('Arrow', ''))
-                    .join(', ')
-                : '없음'}
-            </span>
-          </div>
+          <>
+            <div className={styles.statusText}>
+              현재 활성화된 키:{' '}
+              <span className={styles.activeKey}>
+                {Object.keys(activeKeys).length > 0
+                  ? Object.keys(activeKeys)
+                      .map((key) => key.replace('Arrow', ''))
+                      .join(', ')
+                  : '없음'}
+              </span>
+            </div>
+            <div className={styles.statusText}>
+              오토라이트 상태:{' '}
+              <span className={autoLight ? styles.activeKey : styles.errorKey}>
+                {autoLight ? 'ON' : 'OFF'}
+              </span>
+            </div>
+          </>
         ) : (
           <div className={styles.statusText}>
             WebSocket 상태:{' '}
