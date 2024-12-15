@@ -48,6 +48,7 @@ function ControlPage() {
   useEffect(() => {
     // 초기 WebSocket 연결
     connectSocket();
+    sendMessage('ON_AUTO_LIGHT'); // 자동 조명 활성화
 
     return () => {
       if (socketRef.current) {
