@@ -230,7 +230,7 @@ function ControlPage() {
         <h1 className={styles.title}>RC 카 컨트롤러</h1>
 
         <p className={styles.description}>
-          방향키를 사용해 RC 카를 조작하고, X키, 스페이스바로 특수 동작을 실행하세요.
+          방향키를 사용해 RC 카를 조작하고, 아래를 참고하여 특수 동작을 실행하세요.
         </p>
         <p className={styles.subDescription}>
           X: 천장 오픈 토글, d: 오토 라이트 on/off, 스페이스바: 경적 <br /> ESC: 소켓 종료, R: 소켓
@@ -289,7 +289,7 @@ function ControlPage() {
               </span>
             </div>
             <div className={styles.statusText}>
-              오토라이트 상태:{' '}
+              오토 라이트 상태:{' '}
               <span className={autoLight ? styles.activeKey : styles.errorKey}>
                 {autoLight ? 'ON' : 'OFF'}
               </span>
